@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine Countdown ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="assets/love.png">
+
+<style>
+body {
+  margin:0;
+  height:100vh;
+  font-family:"Comic Sans MS",cursive;
+  text-align:center;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+}
+
+/* Video background */
+#bgVideo {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-3;
+}
+
+/* Dark overlay stronger */
+#overlay {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.6);
+  z-index:-2;
+}
+
+/* Hearts canvas */
+#heartsCanvas {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:-1;
+}
+
+/* White container more transparent */
+.container {
+  background: rgba(255,255,255,0.7);
+  padding:30px;
+  border-radius:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  max-width:90%;
+  position:relative;
+  z-index:2;
+}
+
+/* Slideshow */
+.slideshow {
+  margin:0 auto 15px auto;
+  width:250px;
+  height:180px;
+  overflow:hidden;
+  border-radius:15px;
+}
+.slideshow img { width:100%; height:100%; object-fit:cover; display:none; }
+.slideshow img.active { display:block; }
+
+/* Countdown */
+.countdown {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-top:20px;
+  gap:15px;
+}
+.time-box {
+  text-align:center;
+  min-width:70px;
+}
+.time-box span {
+  display:block;
+  font-size:2.5rem;
+  font-weight:bold;
+  color:#ff3366;
+}
+.time-box small {
+  display:block;
+  font-size:0.9rem;
+  color:#555;
+  margin-top:3px;
+}
+.separator {
+  width:2px;
+  height:55px;
+  background:#ff3366;
+  border-radius:2px;
+  box-shadow:0 0 10px #ff3366;
+}
+
+/* Volume control */
+.volume-control {
+  margin-top:15px;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  color:#ff3366;
+  font-size:0.8rem;
+}
+.volume-control input { width:150px; }
+
+/* Slider theme */
+input[type=range]{
+  -webkit-appearance:none;
+  appearance:none;
+  height:6px;
+  background:#ffd1dc;
+  border-radius:10px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:18px; height:18px;
+  border-radius:50%;
+  background:#ff3366;
+  cursor:pointer;
+  box-shadow:0 0 5px rgba(0,0,0,0.3);
+}
+input[type=range]::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:#ff3366; cursor:pointer; }
+
+.song { font-size:.7rem; color:#ff3366; margin-top:5px; }
+.sender { margin-top:15px; color:#ff3366; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<video autoplay muted loop id="bgVideo">
+  <source src="assets/videos/romantic-video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<div id="overlay"></div>
+<canvas id="heartsCanvas"></canvas>
+
+<audio id="music" loop></audio>
+
+<div class="container">
+  <div class="slideshow" id="slideshow"></div>
+
+  <h1>Countdown to Our Valentine ❤️</h1>
+  <p>Something special is waiting for you, Grace 💕</p>
+
+  <div class="countdown">
+    <div class="time-box"><span id="days">0</span><small>Days</small></div>
+    <div class="separator"></div>
+    <div class="time-box"><span id="hours">0</span><small>Hours</small></div>
+    <div class="separator"></div>
+    <div class="time-box"><span id="minutes">0</span><small>Minutes</small></div>
+    <div class="separator"></div>
+    <div class="time-box"><span id="seconds">0</span><small>Seconds</small></div>
+  </div>
+
+  <div class="sender">love, George ❤️</div>
+  <p style="font-size:0.8rem;">Tap anywhere to start music 🎵</p>
+
+  <div class="song" id="songName"></div>
+  <div class="volume-control">
+    🔊 <input type="range" id="volume" min="0" max="1" step="0.01">
+  </div>
+</div>
+
+<script>
+/* MUSIC */
+const songs=[1,2,3].map(i=>`assets/songs/love-song${i}.mp3`);
+const audio=document.getElementById("music");
+const randomIndex=Math.floor(Math.random()*songs.length);
+audio.src=songs[randomIndex];
+document.getElementById("songName").textContent="🎵 "+audio.src.split("/").pop();
+
+const volSlider=document.getElementById("volume");
+let savedVol=localStorage.getItem("vol")||0.7;
+audio.volume=savedVol;
+volSlider.value=savedVol;
+
+document.body.addEventListener("click",()=>audio.play(),{once:true});
+volSlider.oninput=()=>{
+  audio.volume=volSlider.value;
+  localStorage.setItem("vol",volSlider.value);
+  audio.play();
+};
+
+/* COUNTDOWN */
+const valentineDate=new Date(`Feb 14 ${new Date().getFullYear()} 00:00:00`).getTime();
+setInterval(()=>{
+  const d=valentineDate-Date.now();
+  if(d<=0){
+    sessionStorage.setItem("unlocked","true");
+    location.href="main.html";
+  }
+  document.getElementById("days").textContent=Math.floor(d/86400000);
+  document.getElementById("hours").textContent=Math.floor(d%86400000/3600000);
+  document.getElementById("minutes").textContent=Math.floor(d%3600000/60000);
+  document.getElementById("seconds").textContent=Math.floor(d%60000/1000);
+},1000);
+
+/* SLIDESHOW */
+const imageList=[];
+for(let i=1;i<=29;i++) imageList.push(`assets/images/her${i}.jpeg`);
+const slideshow=document.getElementById("slideshow");
+let currentSlide=0;
+imageList.forEach((src,i)=>{
+  const img=document.createElement("img");
+  img.src=src;
+  if(i===0) img.classList.add("active");
+  slideshow.appendChild(img);
+});
+const slides=slideshow.querySelectorAll("img");
+setInterval(()=>{
+  slides[currentSlide].classList.remove("active");
+  currentSlide=(currentSlide+1)%slides.length;
+  slides[currentSlide].classList.add("active");
+},2000);
+
+/* Floating hearts */
+const heartsCanvas=document.getElementById("heartsCanvas");
+heartsCanvas.width=window.innerWidth;
+heartsCanvas.height=window.innerHeight;
+const ctx=heartsCanvas.getContext("2d");
+let hearts=[];
+function createHeart(){
+  hearts.push({
+    x:Math.random()*heartsCanvas.width,
+    y:heartsCanvas.height+10,
+    size:Math.random()*20+10,
+    speed:Math.random()*1.5+0.5,
+    angle:Math.random()*Math.PI*2,
+    color:`hsl(${Math.random()*360},100%,70%)`
+  });
+}
+function drawHearts(){
+  ctx.clearRect(0,0,heartsCanvas.width,heartsCanvas.height);
+  hearts.forEach((h,i)=>{
+    ctx.fillStyle=h.color;
+    ctx.beginPath();
+    ctx.moveTo(h.x, h.y);
+    const topCurveHeight = h.size * 0.3;
+    ctx.bezierCurveTo(h.x, h.y - topCurveHeight, h.x - h.size/2, h.y - h.size/2, h.x, h.y - h.size);
+    ctx.bezierCurveTo(h.x + h.size/2, h.y - h.size/2, h.x, h.y - topCurveHeight, h.x, h.y);
+    ctx.fill();
+    h.y -= h.speed;
+    h.x += Math.sin(h.angle)*0.5;
+    h.angle += 0.02;
+    if(h.y+h.size<0) hearts.splice(i,1);
+  });
+  requestAnimationFrame(drawHearts);
+}
+setInterval(createHeart, 300);
+drawHearts();
+
+window.addEventListener("resize", ()=>{
+  heartsCanvas.width=window.innerWidth;
+  heartsCanvas.height=window.innerHeight;
+});
+</script>
+</body>
+</html>
