@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🎉 Celebration for Grace ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+// Protect page: cannot access if countdown not finished
+if(sessionStorage.getItem("unlocked")!=="true"){
+    window.location.href="index.html";
+}
+</script>
+
+<style>
+body {
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#ffe4e1;
+    font-family:"Comic Sans MS", cursive;
+    text-align:center;
+}
+
+.container {
+    background:white;
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    width:550px;
+    max-width:95%;
+    position:relative;
+    overflow:hidden; /* keep fireworks inside */
+}
+
+.sender {
+    color:#ff3366;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.slideshow {
+    margin:15px auto;
+    width:200px;
+    height:150px;
+    overflow:hidden;
+    border-radius:15px;
+}
+
+.slideshow img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:none;
+}
+
+.slideshow img.active {
+    display:block;
+}
+
+canvas {
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+.content {
+    position:relative;
+    z-index:2;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <canvas id="fireworks"></canvas>
+
+    <div class="content">
+        <h1>Hurray! 💖</h1>
+        <h2>She said YES! 🎉</h2>
+
+         <div class="slideshow" id="slideshow"></div>
+
+        <div class="sender">love, George ❤️</div>
+        <p style="font-size:0.8rem;">Tap anywhere to play music 🎵</p>
+    </div>
+</div>
+
+<audio id="music" loop></audio>
+
+<script>
+/* RANDOM MUSIC */
+const songs=[];
+for (let i = 1; i <= 3; i++) {
+  songs.push(`assets/songs/song${i}.mp3`);
+}
+const audio=document.getElementById("music");
+audio.src=songs[Math.floor(Math.random()*songs.length)];
+document.body.addEventListener("click",()=>audio.play(),{once:true});
+
+/* SLIDESHOW */
+const imageList = [];
+
+// Generate her1.jpg to her30.jpg
+for (let i = 1; i <= 29; i++) {
+  imageList.push(`assets/images/her${i}.jpeg`);
+}
+
+const slideshow = document.getElementById("slideshow");
+let currentSlide = 0;
+
+// Create images dynamically
+imageList.forEach((src, index) => {
+  const img = document.createElement("img");
+  img.src = src;
+  if (index === 0) img.classList.add("active");
+  slideshow.appendChild(img);
+});
+
+const slides = slideshow.querySelectorAll("img");
+
+setInterval(() => {
+  slides[currentSlide].classList.remove("active");
+  currentSlide = (currentSlide + 1) % slides.length;
+  slides[currentSlide].classList.add("active");
+}, 2000);
+
+
+/* FIREWORKS inside card */
+const fwCanvas=document.getElementById("fireworks");
+const fwCtx=fwCanvas.getContext("2d");
+function resizeFw(){fwCanvas.width=fwCanvas.parentElement.clientWidth; fwCanvas.height=fwCanvas.parentElement.clientHeight;}
+resizeFw(); window.addEventListener("resize",resizeFw);
+
+let fwParticles=[];
+function firework(){
+    for(let i=0;i<50;i++){
+        fwParticles.push({x:fwCanvas.width/2,y:fwCanvas.height/2,dx:(Math.random()-0.5)*6,dy:(Math.random()-0.5)*6,life:80});
+    }
+}
+function animateFw(){
+    fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+    fwParticles.forEach((p,i)=>{
+        fwCtx.fillStyle="pink"; fwCtx.fillRect(p.x,p.y,3,3);
+        p.x+=p.dx; p.y+=p.dy;
+        p.life--;
+        if(p.life<=0) fwParticles.splice(i,1);
+    });
+    requestAnimationFrame(animateFw);
+}
+setInterval(firework,1400);
+animateFw();
+</script>
+
+</body>
+</html>

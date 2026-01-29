@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For Grace ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+// Protect page
+if(sessionStorage.getItem("unlocked")!=="true"){
+    window.location.href="index.html";
+}
+</script>
+
+<style>
+body {
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#ffe4e1;
+    font-family:"Comic Sans MS", cursive;
+    text-align:center;
+}
+
+.container {
+    background:white;
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    width:550px;
+    max-width:95%;
+    position:relative;
+    overflow:hidden;
+}
+
+.sender {
+    color:#ff3366;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.buttons {
+    margin-top:20px;
+    position:relative;
+    height:100px;
+    width:100%;
+}
+
+button {
+    padding:15px 25px;
+    border-radius:20px;
+    border:none;
+    font-size:1rem;
+    cursor:pointer;
+}
+
+#yes {
+    background:#ff3366;
+    color:white;
+    position:absolute;
+    left:50%;
+    transform:translateX(-120%);
+    z-index:3;
+}
+
+#no {
+    background:#999;
+    color:white;
+    position:absolute;
+    left:50%;
+    transform:translateX(20%);
+    z-index:3;
+}
+
+/* Fireworks */
+canvas {
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+/* Slideshow */
+.slideshow {
+    margin:15px auto;
+    width:200px;
+    height:150px;
+    overflow:hidden;
+    border-radius:15px;
+}
+
+.slideshow img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:none;
+}
+
+.slideshow img.active {
+    display:block;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <canvas id="fireworks"></canvas>
+
+    <div class="content">
+        <img src="assets/bunny.gif" width="120"><br>
+
+        <div class="slideshow" id="slideshow"></div>
+
+
+        <h2>Grace ❤️</h2>
+        <h3 id="typing"></h3>
+
+        <h2>Will you be my val?</h2>
+
+        <div class="buttons" id="buttonArea">
+            <button id="yes">Yes 💖</button>
+            <button id="no">No 😢</button>
+        </div>
+
+        <div class="sender">love, George ❤️</div>
+        <p style="font-size:0.8rem;">Tap anywhere to start music 🎵</p>
+    </div>
+</div>
+
+<audio id="music" loop></audio>
+
+<script>
+/* Typing animation loop */
+const text="I love you Grace ❤️";
+let idx=0;
+let deleting=false;
+const typingEl=document.getElementById("typing");
+function typeLoop(){
+    if(!deleting && idx<text.length){typingEl.textContent+=text.charAt(idx++);}
+    else if(deleting && idx>0){typingEl.textContent=text.substring(0,idx--);}
+    else{deleting=!deleting;}
+    setTimeout(typeLoop,deleting?60:120);
+}
+typeLoop();
+
+/* Random music */
+const songs=[];
+for (let i = 1; i <= 3; i++) {
+  songs.push(`assets/songs/song${i}.mp3`);
+}
+const audio=document.getElementById("music");
+const randomIndex=Math.floor(Math.random()*songs.length);
+console.log(randomIndex);
+audio.src=songs[randomIndex];
+document.body.addEventListener("click",()=>audio.play(),{once:true});
+
+/* NO button movement inside card, no overlap YES */
+const noBtn=document.getElementById("no");
+const yesBtn=document.getElementById("yes");
+const area=document.getElementById("buttonArea");
+
+function isOverlapping(a,b){
+    const r1=a.getBoundingClientRect();
+    const r2=b.getBoundingClientRect();
+    return !(r1.right<r2.left || r1.left>r2.right || r1.bottom<r2.top || r1.top>r2.bottom);
+}
+
+function moveNo(){
+    const maxX=area.clientWidth-noBtn.offsetWidth;
+    const maxY=area.clientHeight-noBtn.offsetHeight;
+    let x,y;
+    do{
+        x=Math.random()*maxX;
+        y=Math.random()*maxY;
+        noBtn.style.left=x+"px";
+        noBtn.style.top=y+"px";
+    }while(isOverlapping(noBtn,yesBtn));
+}
+
+noBtn.addEventListener("mouseover",moveNo);
+noBtn.addEventListener("touchstart",moveNo);
+
+/* YES click: confetti + redirect */
+const yesBtnEl=document.getElementById("yes");
+yesBtnEl.addEventListener("click",()=>{
+    confettiLaunch();
+    setTimeout(()=>location.href="celebrate.html",1500);
+});
+
+/* Fireworks inside card */
+const fwCanvas=document.getElementById("fireworks");
+const fwCtx=fwCanvas.getContext("2d");
+function resizeFw(){fwCanvas.width=fwCanvas.parentElement.clientWidth; fwCanvas.height=fwCanvas.parentElement.clientHeight;}
+resizeFw(); window.addEventListener("resize",resizeFw);
+let fwParticles=[];
+function firework(){
+    for(let i=0;i<40;i++){
+        fwParticles.push({x:fwCanvas.width/2,y:fwCanvas.height/2,dx:(Math.random()-0.5)*6,dy:(Math.random()-0.5)*6,life:80});
+    }
+}
+function animateFw(){
+    fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+    fwParticles.forEach((p,i)=>{
+        fwCtx.fillStyle="pink"; fwCtx.fillRect(p.x,p.y,3,3);
+        p.x+=p.dx; p.y+=p.dy; p.life--; if(p.life<=0) fwParticles.splice(i,1);
+    });
+    requestAnimationFrame(animateFw);
+}
+setInterval(firework,1400); animateFw();
+
+/* Simple confetti for YES click */
+function confettiLaunch(){
+    const c=document.createElement("canvas");
+    c.style.position="absolute"; c.style.top=0; c.style.left=0; c.style.zIndex=5;
+    document.querySelector(".container").appendChild(c);
+    const ctx=c.getContext("2d");
+    c.width=c.parentElement.clientWidth;
+    c.height=c.parentElement.clientHeight;
+    let confetti=[];
+    for(let i=0;i<100;i++){
+        confetti.push({x:Math.random()*c.width,y:Math.random()*c.height,dx:(Math.random()-0.5)*6,dy:Math.random()*5+2,color:`hsl(${Math.random()*360},100%,50%)`});
+    }
+    function drawConfetti(){
+        ctx.clearRect(0,0,c.width,c.height);
+        confetti.forEach((p,i)=>{
+            ctx.fillStyle=p.color;
+            ctx.fillRect(p.x,p.y,5,5);
+            p.x+=p.dx; p.y+=p.dy;
+            if(p.y>c.height) p.y=-5;
+        });
+        requestAnimationFrame(drawConfetti);
+    }
+    drawConfetti();
+}
+
+/* Slideshow of her pictures */
+const imageList = [];
+
+// Generate her1.jpg to her30.jpg
+for (let i = 1; i <= 29; i++) {
+  imageList.push(`assets/images/her${i}.jpeg`);
+}
+
+const slideshow = document.getElementById("slideshow");
+let currentSlide = 0;
+
+// Create images dynamically
+imageList.forEach((src, index) => {
+  const img = document.createElement("img");
+  img.src = src;
+  if (index === 0) img.classList.add("active");
+  slideshow.appendChild(img);
+});
+
+const slides = slideshow.querySelectorAll("img");
+
+setInterval(() => {
+  slides[currentSlide].classList.remove("active");
+  currentSlide = (currentSlide + 1) % slides.length;
+  slides[currentSlide].classList.add("active");
+}, 2000);
+
+</script>
+
+</body>
+</html>
