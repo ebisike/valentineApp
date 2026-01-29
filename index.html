@@ -17,6 +17,7 @@ body {
   justify-content:center;
   align-items:center;
   position:relative;
+  background:#000;
 }
 
 /* Video background */
@@ -30,7 +31,7 @@ body {
   z-index:-3;
 }
 
-/* Dark overlay stronger */
+/* Dark overlay */
 #overlay {
   position:fixed;
   top:0;
@@ -52,7 +53,7 @@ body {
   z-index:-1;
 }
 
-/* White container more transparent */
+/* White container */
 .container {
   background: rgba(255,255,255,0.7);
   padding:30px;
@@ -74,33 +75,72 @@ body {
 .slideshow img { width:100%; height:100%; object-fit:cover; display:none; }
 .slideshow img.active { display:block; }
 
-/* Countdown */
+/* Countdown flip style */
 .countdown {
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:flex-start;
   margin-top:20px;
   gap:15px;
 }
-.time-box {
-  text-align:center;
-  min-width:70px;
+
+.flip-unit {
+  perspective:1000px;
+  width:80px;
+  height:120px;
+  position:relative;
+  padding: 0px 12px;
 }
-.time-box span {
+
+.flip-unit span {
   display:block;
-  font-size:2.5rem;
+  width:100%;
+  height:120px;
+  font-size:4rem;
   font-weight:bold;
   color:#ff3366;
+  background: linear-gradient(to bottom, #ccc 0%, #fff 100%);
+  border-radius:8px;
+  line-height:120px;
+  position:absolute;
+  left:0;
+  top:0;
+  text-align:center;
+  backface-visibility:hidden;
+  /* Beveled metallic effect */
+  border-top:2px solid #fff;
+  border-left:2px solid #eee;
+  border-right:2px solid #aaa;
+  border-bottom:4px solid #888;
+  box-shadow: inset 0 -5px 8px rgba(0,0,0,0.2),
+              0 5px 8px rgba(0,0,0,0.3),
+              0 0 10px rgba(255, 200, 200, 0.2);
 }
-.time-box small {
-  display:block;
-  font-size:0.9rem;
-  color:#555;
-  margin-top:3px;
+
+.flip-unit .flip {
+  animation: flip 0.6s forwards;
+  transform-origin: bottom;
+  
 }
+
+@keyframes flip {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(-180deg); }
+  100% { transform: rotateX(-180deg); }
+}
+
+/* Labels below flips */
+.flip-label {
+  text-align:center;
+  font-size:1.2rem;
+  color:#ff3366;
+  margin-top:2px;
+}
+
+/* Separators */
 .separator {
   width:2px;
-  height:55px;
+  height:120px;
   background:#ff3366;
   border-radius:2px;
   box-shadow:0 0 10px #ff3366;
@@ -116,8 +156,6 @@ body {
   font-size:0.8rem;
 }
 .volume-control input { width:150px; }
-
-/* Slider theme */
 input[type=range]{
   -webkit-appearance:none;
   appearance:none;
@@ -158,22 +196,32 @@ input[type=range]::-moz-range-thumb{ width:18px; height:18px; border-radius:50%;
   <p>Something special is waiting for you, Grace 💕</p>
 
   <div class="countdown">
-    <div class="time-box"><span id="days">0</span><small>Days</small></div>
+    <div>
+      <div class="flip-unit"><span class="top" id="daysTop">00</span></div>
+      <div class="flip-label">Days</div>
+    </div>
     <div class="separator"></div>
-    <div class="time-box"><span id="hours">0</span><small>Hours</small></div>
+    <div>
+      <div class="flip-unit"><span class="top" id="hoursTop">00</span></div>
+      <div class="flip-label">Hours</div>
+    </div>
     <div class="separator"></div>
-    <div class="time-box"><span id="minutes">0</span><small>Minutes</small></div>
+    <div>
+      <div class="flip-unit"><span class="top" id="minutesTop">00</span></div>
+      <div class="flip-label">Minutes</div>
+    </div>
     <div class="separator"></div>
-    <div class="time-box"><span id="seconds">0</span><small>Seconds</small></div>
+    <div>
+      <div class="flip-unit"><span class="top" id="secondsTop">00</span></div>
+      <div class="flip-label">Seconds</div>
+    </div>
   </div>
 
   <div class="sender">love, George ❤️</div>
   <p style="font-size:0.8rem;">Tap anywhere to start music 🎵</p>
 
   <div class="song" id="songName"></div>
-  <div class="volume-control">
-    🔊 <input type="range" id="volume" min="0" max="1" step="0.01">
-  </div>
+  <div class="volume-control">🔊 <input type="range" id="volume" min="0" max="1" step="0.01"></div>
 </div>
 
 <script>
@@ -188,27 +236,12 @@ const volSlider=document.getElementById("volume");
 let savedVol=localStorage.getItem("vol")||0.7;
 audio.volume=savedVol;
 volSlider.value=savedVol;
-
 document.body.addEventListener("click",()=>audio.play(),{once:true});
 volSlider.oninput=()=>{
   audio.volume=volSlider.value;
   localStorage.setItem("vol",volSlider.value);
   audio.play();
 };
-
-/* COUNTDOWN */
-const valentineDate=new Date(`Feb 14 ${new Date().getFullYear()} 00:00:00`).getTime();
-setInterval(()=>{
-  const d=valentineDate-Date.now();
-  if(d<=0){
-    sessionStorage.setItem("unlocked","true");
-    location.href="main.html";
-  }
-  document.getElementById("days").textContent=Math.floor(d/86400000);
-  document.getElementById("hours").textContent=Math.floor(d%86400000/3600000);
-  document.getElementById("minutes").textContent=Math.floor(d%3600000/60000);
-  document.getElementById("seconds").textContent=Math.floor(d%60000/1000);
-},1000);
 
 /* SLIDESHOW */
 const imageList=[];
@@ -263,11 +296,42 @@ function drawHearts(){
 }
 setInterval(createHeart, 300);
 drawHearts();
-
 window.addEventListener("resize", ()=>{
-  heartsCanvas.width=window.innerWidth;
+  heartsCanvas.width=window.innerWidth; 
   heartsCanvas.height=window.innerHeight;
 });
+
+/* COUNTDOWN FLIP WITH LEADING ZEROS */
+const valentineDate = new Date(`Feb 14 ${new Date().getFullYear()} 00:00:00`).getTime();
+
+function padZero(num){ return num.toString().padStart(2,'0'); }
+
+function flipUpdate(element, value){
+  const padded = padZero(value);
+  if(element.textContent != padded){
+    element.textContent = padded;
+    element.classList.add("flip");
+    setTimeout(()=>{ element.classList.remove("flip"); }, 600);
+  }
+}
+
+function updateCountdown(){
+  const d = valentineDate - Date.now();
+  if(d<=0){ sessionStorage.setItem("unlocked","true"); location.href="main.html"; return; }
+
+  const days = Math.floor(d/86400000);
+  const hours = Math.floor(d%86400000/3600000);
+  const minutes = Math.floor(d%3600000/60000);
+  const seconds = Math.floor(d%60000/1000);
+
+  flipUpdate(document.getElementById("daysTop"), days);
+  flipUpdate(document.getElementById("hoursTop"), hours);
+  flipUpdate(document.getElementById("minutesTop"), minutes);
+  flipUpdate(document.getElementById("secondsTop"), seconds);
+}
+updateCountdown();
+setInterval(updateCountdown,1000);
 </script>
+
 </body>
 </html>
