@@ -5,6 +5,9 @@
 <title>Valentine Countdown ❤️</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="assets/love.png">
+
 <style>
 body {
   margin:0;
@@ -41,16 +44,50 @@ body {
 }
 .slideshow img.active {display:block;}
 
-.countdown {display:flex;justify-content:center;align-items:center;margin-top:15px}
-.time-box{text-align:center;min-width:60px}
-.time-box span{font-size:1.8rem;font-weight:bold;color:#ff3366}
-.time-box small{font-size:.7rem;color:#555}
-.separator{width:2px;height:45px;background:#ff3366;margin:0 10px;border-radius:2px;box-shadow:0 0 10px #ff3366}
+/* Countdown styles */
+.countdown {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-top:20px;
+  gap:15px;
+}
+.time-box {
+  text-align:center;
+  min-width:70px;
+}
+.time-box span {
+  display:block;
+  font-size:2.5rem; /* increased size */
+  font-weight:bold;
+  color:#ff3366;
+}
+.time-box small {
+  display:block; /* label under number */
+  font-size:.9rem; /* slightly bigger label */
+  color:#555;
+  margin-top:3px;
+}
+.separator{
+  width:2px;
+  height:55px;
+  background:#ff3366;
+  border-radius:2px;
+  box-shadow:0 0 10px #ff3366;
+}
 
-.volume-control{margin-top:10px;display:flex;gap:8px;justify-content:center;color:#ff3366;font-size:.8rem}
-.volume-control input{width:150px}
+/* Volume control */
+.volume-control {
+  margin-top:15px;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  color:#ff3366;
+  font-size:.8rem;
+}
+.volume-control input { width:150px; }
 
-/* SLIDER THEME */
+/* Slider theme */
 input[type=range]{
   -webkit-appearance:none;
   appearance:none;
@@ -68,9 +105,22 @@ input[type=range]::-webkit-slider-thumb{
   box-shadow:0 0 5px rgba(0,0,0,.3);
 }
 input[type=range]::-moz-range-thumb{
-  width:18px;height:18px;border-radius:50%;background:#ff3366;cursor:pointer;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#ff3366;
+  cursor:pointer;
 }
-.song{font-size:.7rem;color:#ff3366}
+.song {
+  font-size:.7rem;
+  color:#ff3366;
+  margin-top:5px;
+}
+.sender {
+  margin-top:15px;
+  color:#ff3366;
+  font-weight:bold;
+}
 </style>
 </head>
 <body>
@@ -93,7 +143,6 @@ input[type=range]::-moz-range-thumb{
     <div class="time-box"><span id="seconds">0</span><small>Seconds</small></div>
   </div>
 
-  
   <div class="sender">love, George ❤️</div>
   <p style="font-size:0.8rem;">Tap anywhere to start music 🎵</p>
   
@@ -109,7 +158,8 @@ input[type=range]::-moz-range-thumb{
 /* MUSIC */
 const songs=[1,2,3].map(i=>`assets/songs/love-song${i}.mp3`);
 const audio=document.getElementById("music");
-audio.src=songs[Math.floor(Math.random()*songs.length)];
+const randomIndex=Math.floor(Math.random()*songs.length);
+audio.src=songs[randomIndex];
 document.getElementById("songName").textContent="🎵 "+audio.src.split("/").pop();
 
 const volSlider=document.getElementById("volume");
@@ -125,17 +175,17 @@ volSlider.oninput=()=>{
 };
 
 /* COUNTDOWN */
-const val=new Date(`Feb 14 ${new Date().getFullYear()}`).getTime();
+const val=new Date(`Feb 14 ${new Date().getFullYear()} 00:00:00`).getTime();
 setInterval(()=>{
   const d=val-Date.now();
   if(d<=0){
     sessionStorage.setItem("unlocked","true");
     location.href="main.html";
   }
-  days.textContent=Math.floor(d/86400000);
-  hours.textContent=Math.floor(d%86400000/3600000);
-  minutes.textContent=Math.floor(d%3600000/60000);
-  seconds.textContent=Math.floor(d%60000/1000);
+  document.getElementById("days").textContent=Math.floor(d/86400000);
+  document.getElementById("hours").textContent=Math.floor(d%86400000/3600000);
+  document.getElementById("minutes").textContent=Math.floor(d%3600000/60000);
+  document.getElementById("seconds").textContent=Math.floor(d%60000/1000);
 },1000);
 
 /* SLIDESHOW */
