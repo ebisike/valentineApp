@@ -32,7 +32,7 @@ body {
     width:550px;
     max-width:95%;
     position:relative;
-    overflow:hidden; /* keep fireworks inside */
+    overflow:hidden;
 }
 
 .sender {
@@ -71,6 +71,49 @@ canvas {
     position:relative;
     z-index:2;
 }
+
+/* VOLUME UI */
+.volume-control{
+    margin-top:10px;
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    align-items:center;
+    color:#ff3366;
+    font-size:0.8rem;
+}
+
+.song {
+    font-size:0.7rem;
+    color:#ff3366;
+    margin-top:5px;
+}
+
+/* SLIDER THEME */
+input[type=range]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:150px;
+    height:6px;
+    background:#ffd1dc;
+    border-radius:10px;
+}
+input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#ff3366;
+    cursor:pointer;
+    box-shadow:0 0 5px rgba(0,0,0,.3);
+}
+input[type=range]::-moz-range-thumb{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#ff3366;
+    cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -82,10 +125,17 @@ canvas {
         <h1>Hurray! 💖</h1>
         <h2>She said YES! 🎉</h2>
 
-         <div class="slideshow" id="slideshow"></div>
+        <div class="slideshow" id="slideshow"></div>
 
+        
         <div class="sender">love, George ❤️</div>
         <p style="font-size:0.8rem;">Tap anywhere to play music 🎵</p>
+       
+        <div class="song" id="songName"></div>
+
+        <div class="volume-control">
+            🔊 <input type="range" id="volume" min="0" max="1" step="0.01">
+        </div>
     </div>
 </div>
 
@@ -95,16 +145,31 @@ canvas {
 /* RANDOM MUSIC */
 const songs=[];
 for (let i = 1; i <= 3; i++) {
-  songs.push(`assets/songs/song${i}.mp3`);
+  songs.push(`assets/songs/love-song${i}.mp3`);
 }
+
 const audio=document.getElementById("music");
-audio.src=songs[Math.floor(Math.random()*songs.length)];
+const randomIndex=Math.floor(Math.random()*songs.length);
+audio.src=songs[randomIndex];
+
+document.getElementById("songName").textContent="🎵 "+audio.src.split("/").pop();
+
+/* VOLUME */
+const volSlider=document.getElementById("volume");
+let savedVol=localStorage.getItem("vol")||0.7;
+audio.volume=savedVol;
+volSlider.value=savedVol;
+
 document.body.addEventListener("click",()=>audio.play(),{once:true});
+
+volSlider.oninput=()=>{
+    audio.volume=volSlider.value;
+    localStorage.setItem("vol",volSlider.value);
+    audio.play();
+};
 
 /* SLIDESHOW */
 const imageList = [];
-
-// Generate her1.jpg to her30.jpg
 for (let i = 1; i <= 29; i++) {
   imageList.push(`assets/images/her${i}.jpeg`);
 }
@@ -112,7 +177,6 @@ for (let i = 1; i <= 29; i++) {
 const slideshow = document.getElementById("slideshow");
 let currentSlide = 0;
 
-// Create images dynamically
 imageList.forEach((src, index) => {
   const img = document.createElement("img");
   img.src = src;
@@ -128,29 +192,43 @@ setInterval(() => {
   slides[currentSlide].classList.add("active");
 }, 2000);
 
-
-/* FIREWORKS inside card */
+/* FIREWORKS */
 const fwCanvas=document.getElementById("fireworks");
 const fwCtx=fwCanvas.getContext("2d");
-function resizeFw(){fwCanvas.width=fwCanvas.parentElement.clientWidth; fwCanvas.height=fwCanvas.parentElement.clientHeight;}
-resizeFw(); window.addEventListener("resize",resizeFw);
+
+function resizeFw(){
+    fwCanvas.width=fwCanvas.parentElement.clientWidth;
+    fwCanvas.height=fwCanvas.parentElement.clientHeight;
+}
+resizeFw(); 
+window.addEventListener("resize",resizeFw);
 
 let fwParticles=[];
 function firework(){
     for(let i=0;i<50;i++){
-        fwParticles.push({x:fwCanvas.width/2,y:fwCanvas.height/2,dx:(Math.random()-0.5)*6,dy:(Math.random()-0.5)*6,life:80});
+        fwParticles.push({
+            x:fwCanvas.width/2,
+            y:fwCanvas.height/2,
+            dx:(Math.random()-0.5)*6,
+            dy:(Math.random()-0.5)*6,
+            life:80
+        });
     }
 }
+
 function animateFw(){
     fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
     fwParticles.forEach((p,i)=>{
-        fwCtx.fillStyle="pink"; fwCtx.fillRect(p.x,p.y,3,3);
-        p.x+=p.dx; p.y+=p.dy;
+        fwCtx.fillStyle="pink";
+        fwCtx.fillRect(p.x,p.y,3,3);
+        p.x+=p.dx;
+        p.y+=p.dy;
         p.life--;
         if(p.life<=0) fwParticles.splice(i,1);
     });
     requestAnimationFrame(animateFw);
 }
+
 setInterval(firework,1400);
 animateFw();
 </script>
