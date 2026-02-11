@@ -77,14 +77,13 @@ body {
 .slideshow img { width:100%; height:100%; object-fit:cover; display:none; }
 .slideshow img.active { display:block; }
 
-/* Countdown flip style */
+/* Countdown */
 .countdown {
   display:flex;
   justify-content:center;
   align-items:flex-start;
   margin-top:20px;
   gap:8px;
-  flex-wrap:nowrap;
 }
 
 .flip-unit {
@@ -109,19 +108,10 @@ body {
   top:0;
   text-align:center;
   backface-visibility:hidden;
-  border-top:2px solid #fff;
-  border-left:2px solid #eee;
-  border-right:2px solid #aaa;
   border-bottom:4px solid #888;
-  box-shadow: inset 0 -5px 8px rgba(0,0,0,0.2),
-              0 5px 8px rgba(0,0,0,0.3),
-              0 0 10px rgba(255, 200, 200, 0.2);
 }
 
-.flip-unit .flip {
-  animation: flip 0.6s forwards;
-  transform-origin: bottom;
-}
+.flip { animation: flip 0.6s forwards; transform-origin: bottom; }
 
 @keyframes flip {
   0% { transform: rotateX(0deg); }
@@ -129,14 +119,6 @@ body {
   100% { transform: rotateX(-180deg); }
 }
 
-/* Labels */
-.flip-label {
-  text-align:center;
-  font-size:0.9rem;
-  color:#ff3366;
-}
-
-/* Separators */
 .separator {
   width:2px;
   height:110px;
@@ -145,50 +127,58 @@ body {
   box-shadow:0 0 10px #ff3366;
 }
 
-/* Volume control */
+.flip-label { font-size:0.9rem; color:#ff3366; }
+
+/* Love text neon */
+#loveText {
+  margin-bottom:12px;
+  min-height:32px;
+  font-size:1.1rem;
+  color:#ff2d55;
+  text-shadow:
+    0 0 5px #ff2d55,
+    0 0 10px #ff2d55,
+    0 0 20px #ff5c8a;
+  transition: opacity 1s ease;
+}
+
+/* Volume */
 .volume-control {
   margin-top:15px;
   display:flex;
-  gap:8px;
   justify-content:center;
+  gap:8px;
   color:#ff3366;
-  font-size:0.8rem;
 }
-.volume-control input { width:130px; }
-
 input[type=range]{
-  -webkit-appearance:none;
-  appearance:none;
+  width:130px;
   height:6px;
-  background:#ffd1dc;
+  background:linear-gradient(to right,#ff2d55,#ff9acb);
   border-radius:10px;
+  -webkit-appearance:none;
 }
 input[type=range]::-webkit-slider-thumb{
   -webkit-appearance:none;
-  width:18px; height:18px;
+  width:16px;
+  height:16px;
   border-radius:50%;
-  background:#ff3366;
+  background:#ff2d55;
+  box-shadow:0 0 10px #ff2d55;
   cursor:pointer;
-  box-shadow:0 0 5px rgba(0,0,0,0.3);
 }
 input[type=range]::-moz-range-thumb{
-  width:18px; height:18px;
+  width:16px;
+  height:16px;
   border-radius:50%;
-  background:#ff3366;
-  cursor:pointer;
+  background:#ff2d55;
+  box-shadow:0 0 10px #ff2d55;
 }
 
-.song { font-size:.7rem; color:#ff3366; margin-top:5px; }
-.sender { margin-top:15px; color:#ff3366; font-weight:bold; }
-
-/* MOBILE ADJUSTMENTS */
-@media (max-width:480px){
+/* Mobile */
+@media(max-width:480px){
   .flip-unit{ width:55px; height:90px; }
   .flip-unit span{ height:90px; line-height:90px; font-size:2.6rem; }
   .separator{ height:90px; }
-  .slideshow{ height:150px; }
-  h1{ font-size:1.3rem; }
-  p{ font-size:0.8rem; }
 }
 </style>
 </head>
@@ -200,68 +190,109 @@ input[type=range]::-moz-range-thumb{
 
 <div id="overlay"></div>
 <canvas id="heartsCanvas"></canvas>
-
 <audio id="music" loop></audio>
+<audio id="popSound" src="assets/sounds/pop.mp3"></audio>
 
 <div class="container">
-  <div class="slideshow" id="slideshow"></div>
 
+  <!-- MOVED ABOVE SLIDESHOW -->
+  <div id="loveText"></div>
+
+  <div class="slideshow" id="slideshow"></div>
   <h1>Countdown to Our Valentine ❤️</h1>
   <p>Something special is waiting for you, Grace 💕</p>
 
   <div class="countdown">
-    <div>
-      <div class="flip-unit"><span class="top" id="daysTop">00</span></div>
-      <div class="flip-label">Days</div>
-    </div>
+    <div><div class="flip-unit"><span id="daysTop">00</span></div><div class="flip-label">Days</div></div>
     <div class="separator"></div>
-    <div>
-      <div class="flip-unit"><span class="top" id="hoursTop">00</span></div>
-      <div class="flip-label">Hours</div>
-    </div>
+    <div><div class="flip-unit"><span id="hoursTop">00</span></div><div class="flip-label">Hours</div></div>
     <div class="separator"></div>
-    <div>
-      <div class="flip-unit"><span class="top" id="minutesTop">00</span></div>
-      <div class="flip-label">Minutes</div>
-    </div>
+    <div><div class="flip-unit"><span id="minutesTop">00</span></div><div class="flip-label">Minutes</div></div>
     <div class="separator"></div>
-    <div>
-      <div class="flip-unit"><span class="top" id="secondsTop">00</span></div>
-      <div class="flip-label">Seconds</div>
-    </div>
+    <div><div class="flip-unit"><span id="secondsTop">00</span></div><div class="flip-label">Seconds</div></div>
   </div>
 
   <div class="sender">love, George ❤️</div>
   <p style="font-size:0.8rem;">Tap anywhere to start music 🎵</p>
-
   <div class="song" id="songName"></div>
   <div class="volume-control">🔊 <input type="range" id="volume" min="0" max="1" step="0.01"></div>
 </div>
 
 <script>
+/* LOVE TEXT */
+const loveTexts=[
+ "I love you more every second ❤️","You are my forever 💕","My heart chose you 💖","You are my miracle ✨",
+"You make life sweeter 😘","I adore your soul 💞","You are my happy place 😊","My world is you 🌍",
+"I choose you daily 💍","You are my sunshine ☀️","I love your laugh 😍","You are my blessing 🙏",
+"You complete me 💗","You are my dream come true 🌙","I’m grateful for you every day 💓",
+"You are my calm and my fire 🔥","You are my heart’s home 🏡","I fall for you daily 💘",
+"My love for you grows 🌱","You are my favorite thought 💭",
+"I treasure you 💎","You are my joy 🎶","You are my heartbeat 💓","You are my star ⭐",
+"I’m lucky to love you 🍀","You are my angel 😇","You are my muse 🎨","You are my peace ☁️",
+"You are my adventure 🌍","You are my destiny 🔮",
+"You are my queen 👑","You are my sunrise 🌅","You are my wish ⭐","You are my prayer 🙏",
+"You are my treasure 💰","You are my light 💡","You are my universe 🌎",
+"You are my soulmate 💞","You are my rose 🌹","You are my fairytale 📖",
+"You are my forever and always ♾️","You are my love story 📜",
+"You are my warm hug 🤗","You are my magic ✨","You are my home 🏡","You are my sweet chaos 🌪️",
+"You are my destiny 💘","You are my reason 💖","You are my miracle every day ✨",
+"You are my endless love ♾️","You are my heartbeat’s song 🎶",
+"You are my greatest gift 🎀","You are my today and tomorrow 💫",
+"You are my favorite hello 👋","You are my hardest goodbye 💔",
+"You are my perfect moment 🕰️","You are my heartbeat’s wish 💓",
+"You are my promise 💞","You are my dream ❤️","You are my star in every sky 🌌",
+"You are my lucky charm 🍀","You are my safe place 🏡","You are my favorite smile 😊",
+"You are my sweetest thought 💭","You are my love always ❤️"
+];
+const fonts=["Comic Sans MS","cursive","serif","monospace","Georgia","Trebuchet MS"];
+const loveEl=document.getElementById("loveText");
+const pop=document.getElementById("popSound");
+let index=0;
+
+function typeText(text){
+  loveEl.textContent="";
+  let i=0;
+  const typer=setInterval(()=>{
+    loveEl.textContent+=text.charAt(i);
+    i++;
+    if(i>=text.length) clearInterval(typer);
+  },45);
+}
+
+// Show first message immediately
+loveEl.style.opacity=1;
+loveEl.style.fontFamily=fonts[Math.floor(Math.random()*fonts.length)];
+typeText(loveTexts[index]);
+
+function updateLove(){
+  index=(index+1)%loveTexts.length;
+  loveEl.style.opacity=0;
+  setTimeout(()=>{
+    loveEl.style.fontFamily=fonts[Math.floor(Math.random()*fonts.length)];
+    typeText(loveTexts[index]);
+    loveEl.style.opacity=1;
+    pop.currentTime=0; pop.play();
+  },300); // small delay for smooth fade
+}
+
+setInterval(updateLove,5000); // every 5 seconds
+
+
 /* MUSIC */
 const songs=[1,2,3].map(i=>`assets/songs/love-song${i}.mp3`);
 const audio=document.getElementById("music");
-const randomIndex=Math.floor(Math.random()*songs.length);
-audio.src=songs[randomIndex];
+audio.src=songs[Math.floor(Math.random()*songs.length)];
 document.getElementById("songName").textContent="🎵 "+audio.src.split("/").pop();
-
-const volSlider=document.getElementById("volume");
-let savedVol=localStorage.getItem("vol")||0.7;
-audio.volume=savedVol;
-volSlider.value=savedVol;
+const vol=document.getElementById("volume");
+audio.volume=0.7; vol.value=0.7;
 document.body.addEventListener("click",()=>audio.play(),{once:true});
-volSlider.oninput=()=>{
-  audio.volume=volSlider.value;
-  localStorage.setItem("vol",volSlider.value);
-  audio.play();
-};
+vol.oninput=()=>audio.volume=vol.value;
 
 /* SLIDESHOW */
 const imageList=[];
 for(let i=1;i<=29;i++) imageList.push(`assets/images/her${i}.jpeg`);
 const slideshow=document.getElementById("slideshow");
-let currentSlide=0;
+let slide=0;
 imageList.forEach((src,i)=>{
   const img=document.createElement("img");
   img.src=src;
@@ -270,81 +301,64 @@ imageList.forEach((src,i)=>{
 });
 const slides=slideshow.querySelectorAll("img");
 setInterval(()=>{
-  slides[currentSlide].classList.remove("active");
-  currentSlide=(currentSlide+1)%slides.length;
-  slides[currentSlide].classList.add("active");
+  slides[slide].classList.remove("active");
+  slide=(slide+1)%slides.length;
+  slides[slide].classList.add("active");
 },2000);
 
-/* Floating hearts */
-const heartsCanvas=document.getElementById("heartsCanvas");
-heartsCanvas.width=window.innerWidth;
-heartsCanvas.height=window.innerHeight;
-const ctx=heartsCanvas.getContext("2d");
+/* DIAMOND CONFETTI */
+const canvas=document.getElementById("heartsCanvas");
+canvas.width=innerWidth; canvas.height=innerHeight;
+const ctx=canvas.getContext("2d");
 let hearts=[];
-function createHeart(){
-  hearts.push({
-    x:Math.random()*heartsCanvas.width,
-    y:heartsCanvas.height+10,
-    size:Math.random()*20+10,
-    speed:Math.random()*1.5+0.5,
-    angle:Math.random()*Math.PI*2,
-    color:`hsl(${Math.random()*360},100%,70%)`
-  });
-}
-function drawHearts(){
-  ctx.clearRect(0,0,heartsCanvas.width,heartsCanvas.height);
+setInterval(()=>hearts.push({
+  x:Math.random()*canvas.width,
+  y:canvas.height,
+  size:Math.random()*4+3,
+  speed:Math.random()*1.5+0.5,
+  color:`hsl(${Math.random()*360},100%,70%)`
+}),200);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   hearts.forEach((h,i)=>{
     ctx.fillStyle=h.color;
-    ctx.beginPath();
-    ctx.moveTo(h.x, h.y);
-    const topCurveHeight = h.size * 0.3;
-    ctx.bezierCurveTo(h.x, h.y - topCurveHeight, h.x - h.size/2, h.y - h.size/2, h.x, h.y - h.size);
-    ctx.bezierCurveTo(h.x + h.size/2, h.y - h.size/2, h.x, h.y - topCurveHeight, h.x, h.y);
-    ctx.fill();
-    h.y -= h.speed;
-    h.x += Math.sin(h.angle)*0.5;
-    h.angle += 0.02;
-    if(h.y+h.size<0) hearts.splice(i,1);
+    ctx.save();
+    ctx.translate(h.x,h.y);
+    ctx.rotate(Math.PI/4);
+    ctx.fillRect(-h.size/2,-h.size/2,h.size,h.size);
+    ctx.restore();
+    h.y-=h.speed;
+    if(h.y<0) hearts.splice(i,1);
   });
-  requestAnimationFrame(drawHearts);
+  requestAnimationFrame(draw);
 }
-setInterval(createHeart, 300);
-drawHearts();
-window.addEventListener("resize", ()=>{
-  heartsCanvas.width=window.innerWidth; 
-  heartsCanvas.height=window.innerHeight;
-});
+draw();
 
 /* COUNTDOWN */
-const valentineDate = new Date(`Feb 14 ${new Date().getFullYear()} 00:00:00`).getTime();
-function padZero(num){ return num.toString().padStart(2,'0'); }
-
-function flipUpdate(element, value){
-  const padded = padZero(value);
-  if(element.textContent != padded){
-    element.textContent = padded;
-    element.classList.add("flip");
-    setTimeout(()=>{ element.classList.remove("flip"); }, 600);
+const valentineDate=new Date(`Feb 14 ${new Date().getFullYear()} 00:00:00`).getTime();
+function pad(n){return n.toString().padStart(2,"0");}
+function flip(el,val){
+  const v=pad(val);
+  if(el.textContent!=v){
+    el.textContent=v;
+    el.classList.add("flip");
+    setTimeout(()=>el.classList.remove("flip"),600);
   }
 }
-
-function updateCountdown(){
-  const d = valentineDate - Date.now();
-  if(d<=0){ sessionStorage.setItem("unlocked","true"); location.href="main.html"; return; }
-
-  const days = Math.floor(d/86400000);
-  const hours = Math.floor(d%86400000/3600000);
-  const minutes = Math.floor(d%3600000/60000);
-  const seconds = Math.floor(d%60000/1000);
-
-  flipUpdate(document.getElementById("daysTop"), days);
-  flipUpdate(document.getElementById("hoursTop"), hours);
-  flipUpdate(document.getElementById("minutesTop"), minutes);
-  flipUpdate(document.getElementById("secondsTop"), seconds);
-}
-updateCountdown();
-setInterval(updateCountdown,1000);
+setInterval(()=>{
+  const d=valentineDate-Date.now();
+  if(d<=0){
+  sessionStorage.setItem("unlocked", "true"); // Mark that we've visited the countdown page
+ setTimeout(() => {
+  location.href="main.html";
+ }, 5000);
+  }
+  flip(daysTop,Math.floor(d/86400000));
+  flip(hoursTop,Math.floor(d%86400000/3600000));
+  flip(minutesTop,Math.floor(d%3600000/60000));
+  flip(secondsTop,Math.floor(d%60000/1000));
+},1000);
 </script>
-
 </body>
 </html>
